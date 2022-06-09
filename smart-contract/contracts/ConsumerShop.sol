@@ -1,5 +1,4 @@
 //SPDX-License-Identifierf: MIT
-// SPDX-License-Identifier: SEE LICENSE IN LICENSE
 pragma solidity ^0.8.4;
 
 contract ConsumerShop {
@@ -44,12 +43,12 @@ contract ConsumerShop {
     }
 
     /**
-    *@dev creates a new product and adds it to the `products` array
-    *@param _sku - a unique ID for product
-    *@param _image - a url of product image
-    *@param _description - a label or short description of the product
-    *@param _price - price at which the product will be sold
-    *@param _quantityAvailable - quantity of products available for sale
+     *@dev creates a new product and adds it to the `products` array
+     *@param _sku - a unique ID for product
+     *@param _image - a url of product image
+     *@param _description - a label or short description of the product
+     *@param _price - price at which the product will be sold
+     *@param _quantityAvailable - quantity of products available for sale
      */
     function createProduct(
         uint _sku,
@@ -59,12 +58,12 @@ contract ConsumerShop {
         uint _price,
         uint _quantityAvailable
     ) public onlyOwner {
-        // we make some assumption that information on sku, name, and price 
+        // we make some assumption that information on sku, name, and price
         // are the least requirements of a product
-        require(_sku > 0 , "SKU is required");
+        require(_sku > 0, "SKU is required");
         require(bytes(_name).length > 0, "Name cannot be empty");
         require(_price > 0, "Price cannot be zero");
-        
+
         //make a new product using the key-value pair approach
         //and push into the products array
         products.push(
@@ -91,25 +90,28 @@ contract ConsumerShop {
         );
     }
 
-
     /**
-    *@dev this function allows a user to buy a product
-    *@param index - index of the product in the `products` array
+     *@dev this function allows a user to buy a product
+     *@param index - index of the product in the `products` array
      */
     function buyProduct(uint index) external payable {
-
-        //make sure the index is within range of the array 
+        //make sure the index is within range of the array
         require(index <= products.length - 1, "Index is out of range");
         //get the product
         Product storage product = products[index];
 
-        require(msg.value >= product.price, "Amount sent is not enough" );
+        require(msg.value >= product.price, "Amount sent is not enough");
 
         uint oldQuantitySold = product.quantitySold;
         product.quantityAvailable -= 1;
         product.quantitySold += 1;
 
-        emit ProductSold(index, product.sku, oldQuantitySold, product.quantitySold);
+        emit ProductSold(
+            index,
+            product.sku,
+            oldQuantitySold,
+            product.quantitySold
+        );
     }
 
     //@dev additional functionality to withdraw funds, and update product information
