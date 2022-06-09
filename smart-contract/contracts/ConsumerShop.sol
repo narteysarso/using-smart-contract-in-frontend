@@ -111,9 +111,12 @@ contract ConsumerShop {
         require(msg.value >= product.price, "Amount sent is not enough");
 
         uint oldQuantitySold = product.quantitySold;
+        //reduce product quantityAvailable by 1
         product.quantityAvailable -= 1;
+        //increase product quatitySold by 1
         product.quantitySold += 1;
 
+        //emit a `ProductSold` event to log to the blockchain
         emit ProductSold(
             index,
             product.sku,
