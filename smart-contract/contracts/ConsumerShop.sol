@@ -2,8 +2,10 @@
 pragma solidity ^0.8.4;
 
 contract ConsumerShop {
+    //stores the owner of the contract
     address owner;
 
+    //define the properties of a Product
     struct Product {
         uint sku;
         string name;
@@ -14,13 +16,16 @@ contract ConsumerShop {
         uint quantitySold;
     }
 
+    //stores all products that have been created
     Product[] public products;
 
+    //restrict access to only the owner of the contract
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner allowed");
         _;
     }
 
+    //@dev event to be emitted when a new product is created
     event ProductCreated(
         uint indexed index,
         uint indexed sku,
@@ -31,6 +36,7 @@ contract ConsumerShop {
         uint price
     );
 
+    // event to be emitted when a product is sold
     event ProductSold(
         uint indexed index,
         uint indexed sku,
@@ -39,11 +45,13 @@ contract ConsumerShop {
     );
 
     constructor() {
+        //set the owner of the contract to the address that deployed the contract
         owner = msg.sender;
     }
 
     /**
      *@dev creates a new product and adds it to the `products` array
+     * restrict access to the owner of the contract using `onlyOwner` modifier
      *@param _sku - a unique ID for product
      *@param _image - a url of product image
      *@param _description - a label or short description of the product
@@ -91,7 +99,7 @@ contract ConsumerShop {
     }
 
     /**
-     *@dev this function allows a user to buy a product
+     *@dev `buyProduct` allows a user to buy a product per transaction
      *@param index - index of the product in the `products` array
      */
     function buyProduct(uint index) external payable {
@@ -99,7 +107,7 @@ contract ConsumerShop {
         require(index <= products.length - 1, "Index is out of range");
         //get the product
         Product storage product = products[index];
-
+        //make sure that the amount sent by the user is enough
         require(msg.value >= product.price, "Amount sent is not enough");
 
         uint oldQuantitySold = product.quantitySold;
@@ -117,7 +125,7 @@ contract ConsumerShop {
     //@dev additional functionality to withdraw funds, and update product information
     //Yet the object here is to demonstract events in solidity so we stick to it.
 
-    //enable our contract to receive eth with fallback function
+    //enable our contract to receive ether
     receive() external payable {}
 
     fallback() external payable {}
