@@ -1,10 +1,11 @@
-//SPDX-License-Identifierf: MIT
+//SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
 contract ConsumerShop {
+    //maximum purchase per transaction
+    uint constant MAX_PURCHASE = 1;
     //stores the owner of the contract
     address owner;
-
     //define the properties of a Product
     struct Product {
         uint sku;
@@ -40,13 +41,21 @@ contract ConsumerShop {
     event ProductSold(
         uint indexed index,
         uint indexed sku,
-        uint oldQuantitySold,
-        uint newQuantitySold
+        uint quantitySold,
+        uint totalQuantitySold,
+        uint newQuantityAvailable
     );
 
     constructor() {
         //set the owner of the contract to the address that deployed the contract
         owner = msg.sender;
+    }
+
+    /**
+    *returns the number of products listed
+     */
+    function numberOfProducts() external view returns (uint){
+        return products.length;
     }
 
     /**
@@ -70,7 +79,8 @@ contract ConsumerShop {
         // are the least requirements of a product
         require(_sku > 0, "SKU is required");
         require(bytes(_name).length > 0, "Name cannot be empty");
-        require(_price > 0, "Price cannot be zero");
+        require(_price > 0, "Product price must be greater than 0");
+        require(_quantityAvailable > 0, "Product quantity must be one or more");
 
         //make a new product using the key-value pair approach
         //and push into the products array
@@ -110,18 +120,21 @@ contract ConsumerShop {
         //make sure that the amount sent by the user is enough
         require(msg.value >= product.price, "Amount sent is not enough");
 
-        uint oldQuantitySold = product.quantitySold;
+        //make sure there is a product to buy
+        require(product.quantityAvailable >= 1, "Product is out of stock");
+
         //reduce product quantityAvailable by 1
-        product.quantityAvailable -= 1;
+        product.quantityAvailable -= MAX_PURCHASE;
         //increase product quatitySold by 1
-        product.quantitySold += 1;
+        product.quantitySold += MAX_PURCHASE;
 
         //emit a `ProductSold` event to log to the blockchain
         emit ProductSold(
             index,
             product.sku,
-            oldQuantitySold,
-            product.quantitySold
+            MAX_PURCHASE,
+            product.quantitySold,
+            product.quantityAvailable
         );
     }
 
